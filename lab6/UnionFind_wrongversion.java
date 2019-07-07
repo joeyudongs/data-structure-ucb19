@@ -1,20 +1,15 @@
-public class UnionFind {
+public class UnionFind_wrongversion {
 
     // TODO - Add instance variables?
-    private int[] parent;   // parent[i] = parent of i
-    private int[] size;      // size[i] = number of sites in subtree rooted at i
-    //private int count;      // number of components
+    private int[] parent;
 
     /* Creates a UnionFind data structure holding n vertices. Initially, all
        vertices are in disjoint sets. */
-    public UnionFind(int n) {
+    public UnionFind_wrongversion(int n) {
         // TODO
-        //count = n;
         parent = new int[n];
-        size = new int[n];
         for (int i = 0; i < n; i++) {
-            parent[i] = i;
-            size[i] = 1;
+            parent[i] = -1;
         }
     }
 
@@ -30,7 +25,7 @@ public class UnionFind {
     /* Returns the size of the set v1 belongs to. */
     public int sizeOf(int v1) {
         // TODO
-        return size[v1];
+        return -parent(find(v1));
     }
 
     /* Returns the parent of v1. If v1 is the root of a tree, returns the
@@ -53,27 +48,31 @@ public class UnionFind {
        change the sets but may alter the internal structure of the data. */
     public void union(int v1, int v2) {
         // TODO
-       int rootv1 = find(v1);
-       int rootv2 = find(v2);
-       if (rootv1 == rootv2) return;
-       // make smaller root point to larger one
-       if (sizeOf(rootv1) < sizeOf(rootv2)) {
-           parent[rootv1] = rootv2;
-           size[rootv2] += size[rootv1];
-       } else {
-           parent[rootv2] = rootv1;
-           size[rootv1] += size[rootv2];
-       }
-       //count--;
+        if (!connected(v1, v2)) {
+            if (sizeOf(v1) > sizeOf(v2)) {
+                parent[find(v1)] -= sizeOf(v2);
+                parent[find(v2)] = find(v1);                 //v2'root = v1.root
+            } else {
+                parent[find(v2)] -= sizeOf(v1);
+                parent[find(v1)] = find(v2);    //v1'root = v2.root
+            }
+        }
     }
 
     /* Returns the root of the set V belongs to. Path-compression is employed
        allowing for fast search-time. */
     public int find(int vertex) {
-       validate(vertex);
-       while (vertex != parent[vertex]) {
-           vertex = parent[vertex];
-       }
-       return vertex;
+       // validate(vertex);
+        int root = vertex;
+        while (parent(root) > -1) {
+            root = parent(root);
+        }
+        int tmp;
+        while (vertex != root) {
+            tmp = parent(vertex);
+            parent[vertex] = root;
+            vertex = tmp;
+        }
+        return root;
     }
 }
